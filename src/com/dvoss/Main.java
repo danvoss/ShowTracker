@@ -26,10 +26,18 @@ public class Main {
                     String username = session.attribute("username");
                     String pw = session.attribute("pass");
 
+//                    ArrayList<Show> myShows = new ArrayList<Show>();
+//                    for (Show show : shows) {
+//                        if (show.creator.equals(username)) {
+//                            myShows.add(show);
+//                        }
+//                    }
+
                     HashMap m = new HashMap();
                     m.put("shows", shows);
                     m.put("username", username);
                     m.put("pass", pw);
+//                    m.put("isOwner", username != null && );
                     return new ModelAndView(m, "home.html");
                 },
                 new MustacheTemplateEngine()
