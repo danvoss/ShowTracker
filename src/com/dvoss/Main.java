@@ -15,6 +15,8 @@ public class Main {
 
     public static void main(String[] args) {
 
+        addTestShows();
+
         Spark.init();
         Spark.get(
                 "/",
@@ -65,7 +67,8 @@ public class Main {
                     return "";
                 }
         );
-
-
+    }
+    static void addTestShows(){
+        shows.add(new Show("me", "Prince", "Jan 1", "NYC", "great!"));
     }
 }

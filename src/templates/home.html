@@ -8,11 +8,13 @@
 <h2>Welcome to ShowTracker.</h2>
 
 {{#username}}
-Hello, {{name}}!
+Hello, {{.}}!
 <form action="/logout" method="post" style="display:inline-block;">
     <button type="submit">Logout</button>
 </form>
 {{/username}}
+<br>
+<br>
 
 {{^username}}
 <form action="/login" method="post">
@@ -23,7 +25,10 @@ Hello, {{name}}!
 <br>
 {{/username}}
 
-{{#shows}}{{/shows}}
+{{#shows}}
+{{artist}} | {{date}} | {{location}} | {{notes}}<br>
+(added by <i>{{creator}}</i>)
+{{/shows}}
 
 </body>
 </html>
