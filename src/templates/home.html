@@ -5,6 +5,25 @@
     <title>ShowTracker</title>
 </head>
 <body>
+<h2>Welcome to ShowTracker.</h2>
+
+{{#username}}
+Hello, {{name}}!
+<form action="/logout" method="post" style="display:inline-block;">
+    <button type="submit">Logout</button>
+</form>
+{{/username}}
+
+{{^username}}
+<form action="/login" method="post">
+    <input type="text" name="username" placeholder="Enter your name."/>
+    <input type="password" name="pass" placeholder="Enter your password."/>
+    <button type="submit">Login</button>
+</form>
+<br>
+{{/username}}
+
+{{#shows}}{{/shows}}
 
 </body>
 </html>
