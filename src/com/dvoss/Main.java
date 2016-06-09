@@ -67,6 +67,24 @@ public class Main {
                     return "";
                 }
         );
+        Spark.post(
+                "/create-show",
+                (request, response) -> {
+                    Session session = request.session();
+                    String username = session.attribute("username");
+                    if (username == null) {
+                        throw new Exception("Not logged in.");
+                    }
+                    String newArtist = request.queryParams("artist");
+                    String newDate = request.queryParams("date");
+                    String newLocation = request.queryParams("location");
+                    String newNotes = request.queryParams("notes");
+                    Show newShow = new Show(username, newArtist, newDate, newLocation, newNotes);
+                    shows.add(newShow);
+                    response.redirect("/");
+                    return "";
+                }
+        );
     }
     static void addTestShows(){
         shows.add(new Show("me", "Prince", "Jan 1", "NYC", "great!"));
