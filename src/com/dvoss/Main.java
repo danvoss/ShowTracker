@@ -26,11 +26,20 @@ public class Main {
                     String username = session.attribute("username");
                     String pw = session.attribute("pass");
 
+                    String idStr = request.queryParams("id");
+                    int id = 0;
+                    if (idStr != null) {
+                        id = Integer.valueOf(idStr);
+                    }
+
+
+
                     HashMap m = new HashMap();
                     m.put("shows", shows);
                     m.put("username", username);
                     m.put("pass", pw);
-                    //m.put("isOwner", username != null &&
+                    m.put("id", id);
+                    //m.put("isOwner", true);
                     return new ModelAndView(m, "home.html");
                 },
                 new MustacheTemplateEngine()
@@ -108,6 +117,7 @@ public class Main {
         );
     }
     static void addTestShows(){
-        shows.add(new Show("me", "Prince", "Jan 1", "NYC", "great!", 0));
+        shows.add(new Show("dv", "Prince", "Jan 1", "NYC", "great!", 0));
+        shows.add(new Show("dv", "Pearl Jam", "June 30", "Hartford", "cool show", 1));
     }
 }
