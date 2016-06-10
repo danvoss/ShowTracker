@@ -26,18 +26,11 @@ public class Main {
                     String username = session.attribute("username");
                     String pw = session.attribute("pass");
 
-//                    ArrayList<Show> myShows = new ArrayList<Show>();
-//                    for (Show show : shows) {
-//                        if (show.creator.equals(username)) {
-//                            myShows.add(show);
-//                        }
-//                    }
-
                     HashMap m = new HashMap();
                     m.put("shows", shows);
                     m.put("username", username);
                     m.put("pass", pw);
-//                    m.put("isOwner", username != null && );
+                    //m.put("isOwner", username != null &&
                     return new ModelAndView(m, "home.html");
                 },
                 new MustacheTemplateEngine()
@@ -62,7 +55,7 @@ public class Main {
                     Session session = request.session();
                     session.attribute("username", username);
 
-                    response.redirect(request.headers("Referer"));
+                    response.redirect(("/"));
                     return "";
                 }
         );
@@ -87,14 +80,34 @@ public class Main {
                     String newDate = request.queryParams("date");
                     String newLocation = request.queryParams("location");
                     String newNotes = request.queryParams("notes");
-                    Show newShow = new Show(username, newArtist, newDate, newLocation, newNotes);
+                    Show newShow = new Show(username, newArtist, newDate, newLocation, newNotes, shows.size());
                     shows.add(newShow);
+                    response.redirect("/");
+                    return "";
+                }
+        );
+        Spark.post(
+                "/delete-show",
+                (request, response) -> {
+                    int id = Integer.valueOf(request.queryParams("id"));
+                    Session session = request.session();
+                    String username = session.attribute("username");
+                    Show delShow = shows.get(id);
+                    if (!delShow.creator.equals(username)) {
+                        throw new Exception("You may only delete shows you created.");
+                    }
+                    shows.remove(id);
+                    int index = 0;
+                    for (Show show : shows) {
+                        show.id = index;
+                        index++;
+                    }
                     response.redirect("/");
                     return "";
                 }
         );
     }
     static void addTestShows(){
-        shows.add(new Show("me", "Prince", "Jan 1", "NYC", "great!"));
+        shows.add(new Show("me", "Prince", "Jan 1", "NYC", "great!", 0));
     }
 }
