@@ -32,13 +32,12 @@ public class Main {
                         id = Integer.valueOf(idStr);
                     }
 
-
-
                     HashMap m = new HashMap();
                     m.put("shows", shows);
                     m.put("username", username);
                     m.put("pass", pw);
                     m.put("id", id);
+                    m.put("isOwner", username != null && shows.get(id).creator.equals(username)); // <- still not true. why?
                     //m.put("isOwner", true);
                     return new ModelAndView(m, "home.html");
                 },
@@ -115,6 +114,24 @@ public class Main {
                     return "";
                 }
         );
+        Spark.get(
+                "/update",
+                (request, response) -> {
+                    HashMap m = new HashMap();
+                    String id = request.queryParams("id");
+                    Show show = shows.get(Integer.valueOf(id));
+                    m.put("show", show);
+                    return new ModelAndView(m, "update.html");
+                },
+                new MustacheTemplateEngine()
+        );
+//        Spark.post(
+//                "update-show",
+//                (request, response) -> {
+//
+//                }
+//        );
+
     }
     static void addTestShows(){
         shows.add(new Show("dv", "Prince", "Jan 1", "NYC", "great!", 0));
