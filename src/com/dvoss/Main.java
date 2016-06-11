@@ -125,12 +125,15 @@ public class Main {
                 },
                 new MustacheTemplateEngine()
         );
-//        Spark.post(
-//                "update-show",
-//                (request, response) -> {
-//
-//                }
-//        );
+        Spark.post(
+                "update-show",
+                (request, response) -> {
+
+                    response.redirect("/");
+                    return "";
+
+                }
+        );
 
     }
     static void addTestShows(){
