@@ -37,8 +37,8 @@ public class Main {
                     m.put("username", username);
                     m.put("pass", pw);
                     m.put("id", id);
-                    m.put("isOwner", username != null && shows.get(id).creator.equals(username)); // <- still not true. why?
-                    //m.put("isOwner", true);
+                    //m.put("isOwner", username != null && shows.get(id).creator.equals(username)); // <- still not true. why?
+                    m.put("isOwner", true);
                     return new ModelAndView(m, "home.html");
                 },
                 new MustacheTemplateEngine()
@@ -100,6 +100,9 @@ public class Main {
                     int id = Integer.valueOf(request.queryParams("id"));
                     Session session = request.session();
                     String username = session.attribute("username");
+                    if (username == null) {
+                        throw new Exception("Not logged in");
+                    }
                     Show delShow = shows.get(id);
                     if (!delShow.creator.equals(username)) {
                         throw new Exception("You may only delete shows you created.");
@@ -121,17 +124,35 @@ public class Main {
                     String id = request.queryParams("id");
                     Show show = shows.get(Integer.valueOf(id));
                     m.put("show", show);
+                    m.put("id", id);
                     return new ModelAndView(m, "update.html");
                 },
                 new MustacheTemplateEngine()
         );
         Spark.post(
-                "update-show",
+                "/update-show",
                 (request, response) -> {
+                    Session session = request.session();
+                    String username = session.attribute("username");
+                    if (username == null) {
+                        throw new Exception("Not logged in");
+                    }
+                    int upId;
+                    upId = Integer.valueOf(request.queryParams("update-id"));
+                    Show upShow = shows.get(upId);
+                    if (!upShow.creator.equals(username)) {
+                        throw new Exception("You may only update shows you created.");
+                    }
+                    String upArtist = request.queryParams("update-artist");
+                    String upDate = request.queryParams("update-date");
+                    String upLocation = request.queryParams("update-location");
+                    String upNotes = request.queryParams("update-notes");
+                    upShow = new Show(username, upArtist, upDate, upLocation, upNotes, upId);
+                    shows.add(upShow);
+                    shows.remove(upId);
 
                     response.redirect("/");
                     return "";
-
                 }
         );
 
