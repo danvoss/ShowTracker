@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Show</title>
+    <style>
+       body {
+        background-color: #E6E6E6;
+        border: 2px solid black;
+        padding: 20px;
+        margin: 50px;
+        color: dark-grey;
+        font-family: Georgia;
+        }
+    </style>
+</head>
+<body>
+{{#show}}
+{{artist}} | {{date}} | {{location}} | {{notes}}<br>
+(added by <i>{{creator}}</i>)<br>
+{{#isOwner}}
+<a href="/update?id={{id}}">Update</a>
+<form action="/delete-show" method="post">
+    <input type="hidden" name="id" value="{{id}}"/>
+    <button type="submit">Delete</button>
+</form>
+{{/isOwner}}
+{{/show}}
+</body>
+</html>
