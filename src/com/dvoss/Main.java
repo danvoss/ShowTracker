@@ -32,14 +32,21 @@ public class Main {
                         id = Integer.valueOf(idStr);
                     }
 
+                    Show myShow = null;
+                    if (id >= 0) {
+                        myShow = shows.get(id);
+                    }
+
                     HashMap m = new HashMap();
                     m.put("shows", shows);
+                    m.put("show", myShow);
                     m.put("username", username);
                     m.put("pass", pw);
                     m.put("id", id);
+                    m.put("isOwner", username != null && myShow != null && myShow.creator.equals(username));
 //                    m.put("isOwner", username != null && pw != null && shows.get(id) != null &&
 //                            shows.get(id).creator.equals(username)); // <- still not true. why?
-                    m.put("isOwner", true);
+//                    m.put("isOwner", true);
 
                     return new ModelAndView(m, "home.html");
                 },
