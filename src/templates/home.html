@@ -26,6 +26,7 @@ Hello, {{.}}!
 <br><br>
 
 {{^username}}
+<p style="font-size:85%;">Log in or create an account.</p>
 <form action="/login" method="post">
     <input type="text" name="username" placeholder="Enter your name."/>
     <input type="password" name="pass" placeholder="Enter your password."/>
@@ -46,6 +47,8 @@ Add a new show:<br><br>
 </form>
 <br><br>
 {{/username}}
+
+<p style="font-size:85%;">(Click a show to see details, update, or delete.)</p><br>
 
 <ul>
     {{#shows}}
