@@ -37,8 +37,10 @@ public class Main {
                     m.put("username", username);
                     m.put("pass", pw);
                     m.put("id", id);
-                    //m.put("isOwner", username != null && shows.get(id).creator.equals(username)); // <- still not true. why?
+//                    m.put("isOwner", username != null && pw != null && shows.get(id) != null &&
+//                            shows.get(id).creator.equals(username)); // <- still not true. why?
                     m.put("isOwner", true);
+
                     return new ModelAndView(m, "home.html");
                 },
                 new MustacheTemplateEngine()
