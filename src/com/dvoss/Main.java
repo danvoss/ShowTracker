@@ -138,6 +138,7 @@ public class Main {
                     Show show = shows.get(Integer.valueOf(id));
                     m.put("show", show);
                     m.put("id", id);
+                    // m.put all values & use value={{}} in html for update
                     return new ModelAndView(m, "update.html");
                 },
                 new MustacheTemplateEngine()
@@ -161,8 +162,7 @@ public class Main {
                     String upLocation = request.queryParams("update-location");
                     String upNotes = request.queryParams("update-notes");
                     upShow = new Show(username, upArtist, upDate, upLocation, upNotes, upId);
-                    shows.add(upShow);
-                    shows.remove(upId);
+                    shows.set(upId, upShow);
 
                     response.redirect("/");
                     return "";
