@@ -33,11 +33,12 @@ public class MainTest {
     public void testShow() throws SQLException {
         Connection conn = startConnection();
         Main.insertUser(conn, "Bob", "pw");
+        User user = Main.selectUser(conn, "Bob");
         Main.insertShow(conn, "Artist", "Date", "Location", "Notes", 1);
         Show show = Main.selectShow(conn, 1);
         conn.close();
         assertTrue(show != null );
-        assertTrue(show.creator.equals("Bob"));
+        assertTrue(show.userId == user.id);
     }
 
     @Test
@@ -79,7 +80,7 @@ public class MainTest {
         Show show = Main.selectShow(conn, 1);
         conn.close();
         assertTrue(show != null);
-        assertTrue(show.creator.equals("Bob"));
+        assertTrue(show.userId == bob.id);
         assertTrue(show.artist.equals("Kunstler"));
     }
 

@@ -5,20 +5,19 @@ package com.dvoss;
  */
 public class Show {
     int id;
-    String creator;
     String artist;
     String date;
     String location;
     String notes;
+    int userId;
 
 
-    public Show(int id, String creator, String artist, String date, String location, String notes) {
+    public Show(int id, String artist, String date, String location, String notes, int userId) {
         this.id = id;
-        this.creator = creator;
         this.artist = artist;
         this.date = date;
         this.location = location;
         this.notes = notes;
-
+        this.userId = userId;
     }
 }

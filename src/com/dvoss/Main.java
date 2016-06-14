@@ -1,5 +1,6 @@
 package com.dvoss;
 
+import org.h2.tools.Server;
 import spark.ModelAndView;
 import spark.Session;
 import spark.Spark;
@@ -10,9 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main {
-
-    static HashMap<String, User> users = new HashMap<>();
-    static ArrayList<Show> shows = new ArrayList<>();
 
     public static void createTables(Connection conn) throws SQLException {
         Statement stmt = conn.createStatement();
@@ -50,16 +48,16 @@ public class Main {
     }
 
     public static Show selectShow(Connection conn, int id) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM shows INNER JOIN users ON shows.user_id = users.id WHERE users.id = ?");
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM shows WHERE id = ?");
         stmt.setInt(1, id);
         ResultSet results = stmt.executeQuery();
         if (results.next()) {
-            String creator = results.getString("users.name");
+            int userId = Integer.valueOf(results.getString("shows.user_id"));
             String artist = results.getString("shows.artist");
             String date = results.getString("shows.date");
             String location = results.getString("shows.location");
             String notes = results.getString("shows.notes");
-            return new Show(id, creator, artist, date, location, notes);
+            return new Show(id, artist, date, location, notes, userId);
         }
         return null;
     }
@@ -70,12 +68,12 @@ public class Main {
         ArrayList<Show> shows = new ArrayList<>();
         while (results.next()) {
             int id = results.getInt("id");
-            String creator = results.getString("users.name");
+            int userId = Integer.valueOf(results.getString("shows.user_id"));
             String artist = results.getString("shows.artist");
             String date = results.getString("shows.date");
             String location = results.getString("shows.location");
             String notes = results.getString("shows.notes");
-            Show show = new Show(id, creator, artist, date, location, notes);
+            Show show = new Show(id, artist, date, location, notes, userId);
             shows.add(show);
         }
         return shows;
@@ -100,9 +98,11 @@ public class Main {
 
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
 
-        addTestShows();
+        Server.createWebServer().start();
+        Connection conn = DriverManager.getConnection("jdbc:h2:./main");
+        createTables(conn);
 
         Spark.init();
         Spark.get(
@@ -120,7 +120,7 @@ public class Main {
                     }
 
                     HashMap m = new HashMap();
-                    m.put("shows", shows);
+                    m.put("shows", selectShows(conn));
                     m.put("username", username);
                     m.put("pass", pw);
                     m.put("id", id);
@@ -138,10 +138,9 @@ public class Main {
                     if (username == null || pw == null) {
                         Spark.halt("Name or password not sent");
                     }
-                    User user = users.get(username);
+                    User user = selectUser(conn, username);
                     if (user == null) {
-                        user = new User(username, pw);
-                        users.put(username, user);
+                        insertUser(conn, username, pw);
                     }
                     else if (!pw.equals(user.password)) {
                         Spark.halt("Wrong password");
@@ -170,12 +169,17 @@ public class Main {
                     if (username == null) {
                         throw new Exception("Not logged in.");
                     }
-                    String newArtist = request.queryParams("artist");
-                    String newDate = request.queryParams("date");
-                    String newLocation = request.queryParams("location");
-                    String newNotes = request.queryParams("notes");
-                    Show newShow = new Show(shows.size(), username, newArtist, newDate, newLocation, newNotes);
-                    shows.add(newShow);
+                    String artist = request.queryParams("artist");
+                    String date = request.queryParams("date");
+                    String location = request.queryParams("location");
+                    String notes = request.queryParams("notes");
+
+                    User user = selectUser(conn, username);
+                    insertShow(conn, artist, date, location, notes, user.id);
+
+//                    Show newShow = new Show(shows.size(), username, newArtist, newDate, newLocation, newNotes);
+//                    shows.add(newShow);
+
                     response.redirect("/");
                     return "";
                 }
@@ -189,16 +193,19 @@ public class Main {
                     if (username == null) {
                         throw new Exception("Not logged in");
                     }
-                    Show delShow = shows.get(id);
-                    if (!delShow.creator.equals(username)) {
-                        throw new Exception("You may only delete shows you created.");
-                    }
-                    shows.remove(id);
-                    int index = 0;
-                    for (Show show : shows) {
-                        show.id = index;
-                        index++;
-                    }
+                    //Show delShow = selectShow(conn, id);
+//                    if (!delShow.creator.equals(username)) {
+//                        throw new Exception("You may only delete shows you created.");
+//                    }
+
+                    deleteShow(conn, id);
+
+//                    shows.remove(id);
+//                    int index = 0;
+//                    for (Show show : shows) {
+//                        show.id = index;
+//                        index++;
+//                    }
                     response.redirect("/");
                     return "";
                 }
@@ -208,11 +215,12 @@ public class Main {
                 (request, response) -> {
                     Session session = request.session();
                     String username = session.attribute("username");
+                    User user = selectUser(conn, username);
                     HashMap m = new HashMap();
                     String id = request.queryParams("id");
-                    Show myShow = shows.get(Integer.valueOf(id));
+                    Show myShow = selectShow(conn, Integer.valueOf(id));
                     m.put("show", myShow);
-                    m.put("isOwner", username != null && myShow != null && myShow.creator.equals(username));
+                    m.put("isOwner", username != null && myShow != null && (myShow.userId == user.id));
                     return new ModelAndView(m, "show.html");
                 },
                 new MustacheTemplateEngine()
@@ -222,7 +230,7 @@ public class Main {
                 (request, response) -> {
                     HashMap m = new HashMap();
                     String id = request.queryParams("id");
-                    Show show = shows.get(Integer.valueOf(id));
+                    Show show = selectShow(conn, Integer.valueOf(id));
                     m.put("show", show);
                     m.put("id", id);
                     m.put("artist", show.artist);
@@ -243,25 +251,23 @@ public class Main {
                     }
                     int id;
                     id = Integer.valueOf(request.queryParams("id"));
-                    Show upShow = shows.get(id);
-                    if (!upShow.creator.equals(username)) {
-                        throw new Exception("You may only update shows you created.");
-                    }
+                    //Show upShow = selectShow(conn, id);
+//                    if (!upShow.creator.equals(username)) {
+//                        throw new Exception("You may only update shows you created.");
+//                    }
                     String artist = request.queryParams("artist");
                     String date = request.queryParams("date");
                     String location = request.queryParams("location");
                     String notes = request.queryParams("notes");
-                    upShow = new Show(id, username, artist, date, location, notes);
-                    shows.set(id, upShow);
+
+                    updateShow(conn, artist, date, location, notes, selectUser(conn, username).id);
+
+//                    upShow = new Show(id, username, artist, date, location, notes);
+//                    shows.set(id, upShow);
 
                     response.redirect("/");
                     return "";
                 }
         );
-
-    }
-    static void addTestShows(){
-        shows.add(new Show(0, "dv", "Prince", "Jan 1", "NYC", "great!"));
-        shows.add(new Show(1, "dv", "Pearl Jam", "June 30", "Hartford", "cool show"));
     }
 }
