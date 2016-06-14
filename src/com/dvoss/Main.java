@@ -81,6 +81,12 @@ public class Main {
         return shows;
     }
 
+    public static void deleteShow(Connection conn, int id) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("DELETE FROM shows WHERE id = ?");
+        stmt.setInt(1, id);
+        stmt.execute();
+    }
+
 
 
     public static void main(String[] args) {

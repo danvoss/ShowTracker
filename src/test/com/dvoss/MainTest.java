@@ -58,4 +58,15 @@ public class MainTest {
         assertTrue(shows.size() == 3);
     }
 
+    @Test
+    public void testDelete() throws SQLException {
+        Connection conn = startConnection();
+        Main.insertUser(conn, "Bob", "pw");
+        Main.insertShow(conn, "Artist", "Date", "Location", "Notes", 1);
+        Main.deleteShow(conn, 1);
+        Show show = Main.selectShow(conn, 1);
+        conn.close();
+        assertTrue(show == null);
+    }
+
 }
