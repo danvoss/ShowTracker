@@ -19,11 +19,11 @@
 <br>
 <br>
 <form action="/update-show" method="post">
-    <input type="text" name="update-artist" placeholder="Edit Artist"/>
-    <input type="text" name="update-date" placeholder="Edit Date"/>
-    <input type="text" name="update-location" placeholder="Edit Location"/>
-    <input type="text" name="update-notes" placeholder="Edit Notes"/>
-    <input type="hidden" name="update-id" value="{{id}}"/>
+    <input type="text" name="artist" value="{{artist}}"/>
+    <input type="text" name="date" value="{{date}}"/>
+    <input type="text" name="location" value="{{location}}"/>
+    <input type="text" name="notes" value="{{notes}}"/>
+    <input type="hidden" name="id" value="{{id}}"/>
     <button type="submit">Submit</button>
 </form>
 </body>

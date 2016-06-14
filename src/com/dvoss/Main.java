@@ -138,7 +138,10 @@ public class Main {
                     Show show = shows.get(Integer.valueOf(id));
                     m.put("show", show);
                     m.put("id", id);
-                    // m.put all values & use value={{}} in html for update
+                    m.put("artist", show.artist);
+                    m.put("date", show.date);
+                    m.put("location", show.location);
+                    m.put("notes", show.notes);
                     return new ModelAndView(m, "update.html");
                 },
                 new MustacheTemplateEngine()
@@ -151,18 +154,18 @@ public class Main {
                     if (username == null) {
                         throw new Exception("Not logged in");
                     }
-                    int upId;
-                    upId = Integer.valueOf(request.queryParams("update-id"));
-                    Show upShow = shows.get(upId);
+                    int id;
+                    id = Integer.valueOf(request.queryParams("id"));
+                    Show upShow = shows.get(id);
                     if (!upShow.creator.equals(username)) {
                         throw new Exception("You may only update shows you created.");
                     }
-                    String upArtist = request.queryParams("update-artist");
-                    String upDate = request.queryParams("update-date");
-                    String upLocation = request.queryParams("update-location");
-                    String upNotes = request.queryParams("update-notes");
-                    upShow = new Show(username, upArtist, upDate, upLocation, upNotes, upId);
-                    shows.set(upId, upShow);
+                    String artist = request.queryParams("artist");
+                    String date = request.queryParams("date");
+                    String location = request.queryParams("location");
+                    String notes = request.queryParams("notes");
+                    upShow = new Show(username, artist, date, location, notes, id);
+                    shows.set(id, upShow);
 
                     response.redirect("/");
                     return "";
