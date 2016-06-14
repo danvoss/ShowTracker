@@ -87,6 +87,17 @@ public class Main {
         stmt.execute();
     }
 
+    public static void updateShow(Connection conn, String artist, String date, String location, String notes, int userId) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("UPDATE shows SET artist = ?, date = ?, location = ?, notes = ? WHERE user_id = ?");
+        stmt.setString(1, artist);
+        stmt.setString(2, date);
+        stmt.setString(3, location);
+        stmt.setString(4, notes);
+        stmt.setInt(5, userId);
+        stmt.execute();
+
+    }
+
 
 
     public static void main(String[] args) {

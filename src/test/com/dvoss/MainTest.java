@@ -69,4 +69,18 @@ public class MainTest {
         assertTrue(show == null);
     }
 
+    @Test
+    public void testUpdate() throws SQLException {
+        Connection conn = startConnection();
+        Main.insertUser(conn, "Bob", "pw");
+        User bob = Main.selectUser(conn, "Bob");
+        Main.insertShow(conn, "Artist", "Date", "Location", "Notes", bob.id);
+        Main.updateShow(conn, "Kunstler", "Datum", "Ort", "Notizen", bob.id);
+        Show show = Main.selectShow(conn, 1);
+        conn.close();
+        assertTrue(show != null);
+        assertTrue(show.creator.equals("Bob"));
+        assertTrue(show.artist.equals("Kunstler"));
+    }
+
 }
