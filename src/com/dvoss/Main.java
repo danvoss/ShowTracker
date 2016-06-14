@@ -39,6 +39,33 @@ public class Main {
         return null;
     }
 
+    public static void insertShow(Connection conn, String artist, String date, String location, String notes, int userId) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO shows VALUES (NULL, ?, ?, ?, ?, ?)");
+        stmt.setString(1, artist);
+        stmt.setString(2, date);
+        stmt.setString(3, location);
+        stmt.setString(4, notes);
+        stmt.setInt(5, userId);
+        stmt.execute();
+    }
+
+    public static Show selectShow(Connection conn, int id) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM shows INNER JOIN users ON shows.user_id = users.id WHERE users.id = ?");
+        stmt.setInt(1, id);
+        ResultSet results = stmt.executeQuery();
+        if (results.next()) {
+            String creator = results.getString("users.name");
+            String artist = results.getString("shows.artist");
+            String date = results.getString("shows.date");
+            String location = results.getString("shows.location");
+            String notes = results.getString("shows.notes");
+            return new Show(id, creator, artist, date, location, notes);
+        }
+        return null;
+    }
+
+
+
     public static void main(String[] args) {
 
         addTestShows();
@@ -113,7 +140,7 @@ public class Main {
                     String newDate = request.queryParams("date");
                     String newLocation = request.queryParams("location");
                     String newNotes = request.queryParams("notes");
-                    Show newShow = new Show(username, newArtist, newDate, newLocation, newNotes, shows.size());
+                    Show newShow = new Show(shows.size(), username, newArtist, newDate, newLocation, newNotes);
                     shows.add(newShow);
                     response.redirect("/");
                     return "";
@@ -190,7 +217,7 @@ public class Main {
                     String date = request.queryParams("date");
                     String location = request.queryParams("location");
                     String notes = request.queryParams("notes");
-                    upShow = new Show(username, artist, date, location, notes, id);
+                    upShow = new Show(id, username, artist, date, location, notes);
                     shows.set(id, upShow);
 
                     response.redirect("/");
@@ -200,7 +227,7 @@ public class Main {
 
     }
     static void addTestShows(){
-        shows.add(new Show("dv", "Prince", "Jan 1", "NYC", "great!", 0));
-        shows.add(new Show("dv", "Pearl Jam", "June 30", "Hartford", "cool show", 1));
+        shows.add(new Show(0, "dv", "Prince", "Jan 1", "NYC", "great!"));
+        shows.add(new Show(1, "dv", "Pearl Jam", "June 30", "Hartford", "cool show"));
     }
 }
