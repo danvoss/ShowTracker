@@ -64,6 +64,23 @@ public class Main {
         return null;
     }
 
+    public static ArrayList<Show> selectShows(Connection conn) throws SQLException {
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM shows INNER JOIN users ON shows.user_id = users.id");
+        ResultSet results = stmt.executeQuery();
+        ArrayList<Show> shows = new ArrayList<>();
+        while (results.next()) {
+            int id = results.getInt("id");
+            String creator = results.getString("users.name");
+            String artist = results.getString("shows.artist");
+            String date = results.getString("shows.date");
+            String location = results.getString("shows.location");
+            String notes = results.getString("shows.notes");
+            Show show = new Show(id, creator, artist, date, location, notes);
+            shows.add(show);
+        }
+        return shows;
+    }
+
 
 
     public static void main(String[] args) {
